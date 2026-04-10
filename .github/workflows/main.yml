@@ -6,14 +6,44 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      # Step 1: Checkout the repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: HubSpot Deploy
-        uses: HubSpot/hubspot-cms-deploy-action@v2.1.0
-        env:
-          HUBSPOT_ACCOUNT_ID: ${{ vars.HUBSPOT_ACCOUNT_ID }}
-          HUBSPOT_PERSONAL_ACCESS_KEY: ${{ secrets.HUBSPOT_PERSONAL_ACCESS_KEY }}
+      # Step 2: Setup Node (required for npx)
+      - name: Use Node.js
+        uses: actions/setup-node@v4
         with:
-          src_dir: 'fede-test'
-          dest_dir: 'fede-test'
+          node-version: "22.x"
+
+      # Step 3: Deploy to HubSpot using HubSpot CLI directly (v7.11.1)
+      - name: HubSpot Deploy (hs CLI) - create config workaround
+        env:
+          HUBSPOT_ACCOUNT_ID: ${{ secrets.HUBSPOT_PORTAL_ID || secrets.HUBSPOT_ACCOUNT_ID }}
+          HUBSPOT_PERSONAL_ACCESS_KEY: ${{ secrets.HUBSPOT_PERSONAL_ACCESS_KEY }}
+        run: |
+          set -euo pipefail
+
+          # 1) Verify what CLI version will be used (debug)
+          echo "Using hubspot-cli (should be 7.11.1):"
+          npx --yes --package=@hubspot/cli@7.11.1 --call='hs --version' || true
+
+          # 2) Quick presence checks (masked in logs)
+          echo "HUBSPOT_ACCOUNT_ID present: ${HUBSPOT_ACCOUNT_ID:+yes}"
+          echo "HUBSPOT_PERSONAL_ACCESS_KEY present: ${HUBSPOT_PERSONAL_ACCESS_KEY:+yes}"
+
+          # 3) Create a minimal hubspot.config.yml in workspace to satisfy CLI
+          cat > hubspot.config.yml <<EOF
+          portal_id: ${HUBSPOT_ACCOUNT_ID}
+          personal_access_key: ${HUBSPOT_PERSONAL_ACCESS_KEY}
+          EOF
+
+          # Optional: show the file path and that it exists (contents will not be printed)
+          echo "Created config file at: $(pwd)/hubspot.config.yml"
+
+          # 4) Run the upload (still using --use-env is fine)
+          npx --yes --package=@hubspot/cli@7.11.1 --call='hs cms upload . fede-test --use-env'
+
+          # 5) Cleanup the temporary file immediately
+          shred -u hubspot.config.yml || rm -f hubspot.config.yml
+        shell: bash
