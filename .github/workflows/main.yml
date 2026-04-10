@@ -9,7 +9,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: HubSpot Deploy
-        uses: HubSpot/hubspot-cms-deploy-action@v1.8
+        uses: HubSpot/hubspot-cms-deploy-action@v2.1.0
         with:
           src_dir: .
           dest_dir: fede-test
