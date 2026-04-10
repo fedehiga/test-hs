@@ -10,10 +10,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: HubSpot Deploy
-        uses: HubSpot/hubspot-cms-deploy-action@2.1
+        uses: HubSpot/hubspot-cms-deploy-action@v2.1.0
         env:
           HUBSPOT_ACCOUNT_ID: ${{ secrets.HUBSPOT_ACCOUNT_ID }}
           HUBSPOT_PERSONAL_ACCESS_KEY: ${{ secrets.HUBSPOT_PERSONAL_ACCESS_KEY }}
         with:
-          src_dir: 'src'
-          dest_dir: 'my-theme-folder'
+          src_dir: 'fede-test'
+          dest_dir: 'fede-test'
