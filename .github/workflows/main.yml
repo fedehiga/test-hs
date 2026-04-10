@@ -14,5 +14,5 @@ jobs:
       - name: HubSpot Deploy
         uses: HubSpot/hubspot-cms-deploy-action@v2.1.0
         with:
-          src_dir: .
+          src_dir: fede-test
           dest_dir: fede-test
