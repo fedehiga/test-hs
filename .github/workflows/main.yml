@@ -6,13 +6,14 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
+
       - name: HubSpot Deploy
-        uses: HubSpot/hubspot-cms-deploy-action@v2.1.0
-        with:
-          src_dir: fede-test
-          dest_dir: fede-test
+        uses: HubSpot/hubspot-cms-deploy-action@v2
         env:
           HUBSPOT_ACCOUNT_ID: ${{ secrets.HUBSPOT_ACCOUNT_ID }}
           HUBSPOT_PERSONAL_ACCESS_KEY: ${{ secrets.HUBSPOT_PERSONAL_ACCESS_KEY }}
+        with:
+          src_dir: 'src'
+          dest_dir: 'my-theme-folder'
